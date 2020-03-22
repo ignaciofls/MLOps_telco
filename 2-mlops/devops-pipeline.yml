@@ -1,0 +1,59 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+variables: { 
+  mlWorkspaceConnection: 'myscforcommondemows' ,
+  mlWorkspaceName: 'commondemows',
+  resourceGroupName: 'commondemows'
+  }
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+
+- task: AzureCLI@1
+  displayName: 'Install the CLI'
+  inputs:
+    azureSubscription: $(mlWorkspaceConnection)
+    scriptLocation: inlineScript
+    inlineScript: 'az extension add -n azure-cli-ml'
+
+- task: AzureCLI@1
+  displayName: 'Attach folder to ML workspace'
+  inputs:
+    azureSubscription: $(mlWorkspaceConnection)
+    scriptLocation: inlineScript
+    inlineScript: 'az ml folder attach -w $(mlWorkspaceName) -g $(resourceGroupName)'
+    workingDirectory: '2-mlops'
+
+- task: AzureCLI@1
+  displayName: 'Prepare data with ML pipeline'
+  inputs:
+    azureSubscription: $(mlWorkspaceConnection)
+    scriptLocation: inlineScript
+    inlineScript: 'az ml run submit-pipeline --pipeline-yaml adb-pipeline.yml --experiment-name churnMLOps'
+    workingDirectory: '2-mlops'
+
+- task: AzureCLI@1
+  displayName: 'Train with ML pipeline'
+  inputs:
+    azureSubscription: $(mlWorkspaceConnection)
+    scriptLocation: inlineScript
+    inlineScript: 'az ml run submit-pipeline --pipeline-yaml aml-pipeline.yml --experiment-name churnMLOps'
+    workingDirectory: '2-mlops'
+
+- task: AzureCLI@1
+  displayName: 'Deploy to QA (ACI)'
+  inputs:
+    azureSubscription: $(mlWorkspaceConnection)
+    scriptLocation: inlineScript
+    inlineScript: 'az ml model deploy -n myacideployed -m Churn_model:1 --ic ./inference_config/inferenceConfig.json --dc ./inference_config/deploymentConfig.json --overwrite'
+    workingDirectory: '2-mlops'
+
+

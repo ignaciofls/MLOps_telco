@@ -1,0 +1,12 @@
+pipeline:
+    name: SamplePipelineFromYaml
+    default_compute: mydatabricks 
+    steps:
+        Step1:
+            type: "DatabricksStep"
+            name: "MyDatabrickStep"
+            run_name: "DatabricksRun"
+            num_workers: 1
+            allow_reuse: True
+            notebook_path: "/Users/igfloris@microsoft.com/ETLexample"
+            existing_cluster_id: "0309-165727-trope493"
