@@ -1,6 +1,6 @@
 # MLops example
 
-Note: This repo is a fork from https://github.com/danielsc/azureml-workshop-2019/ and inspired by Roman Orac's article: https://towardsdatascience.com/churn-prediction-770d6cb582a5 , all the credit to Daniel.
+Note: This repo is a fork from https://github.com/danielsc/azureml-workshop-2019/ and inspired by Roman's article: https://towardsdatascience.com/churn-prediction-770d6cb582a5 , all the credit to them.
 
 This repo provides a curated example of a MLops cycle where we train a model while showing main capabilities of AzureML and automate tedious tasks like data preparation (with Azure Databricks), model tracking, metric logging, explainabiliy, unit test, etc
 
