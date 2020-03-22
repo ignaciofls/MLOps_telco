@@ -123,8 +123,17 @@ This makes sure whenever any checkin happens a build is triggered that submits a
 
 'az ml run submit-script -c train -e test train.py'
 
-
 Automating Deployment
+=====================
+
+There are some options to deploy your model into different environments (AKS, ACI, etc), chose whichever is more convenient for you:
+
+A) As a Devops Pipeline Task
+=========================
+
+At the moment the YML template in this repo includes the deployment task to deploy the model to an ACI, but this can also be done as a Release as seen in B). The Pipeline task is just a CLI commmand to fetch a model and apply the configuration in the inference_config files to that endpoint 
+
+B) As a Devops Release
 =====================
 
 Model deployment is typically configured to create a pipeline which
