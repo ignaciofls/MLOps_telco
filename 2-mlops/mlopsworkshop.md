@@ -3,7 +3,7 @@ Import the workshop repo to Azure DevOps
 Go to your Azure DevOps project, into the Repos area.
 Click on the Git repo dropdown at the top of the page and then on "Import Repository".
 
-Under clone URL, type 
+Under clone URL, type https://github.com/ignaciofls/MLOps_telco
 
 Next, let's connect your ML workspace to Azure DevOps.
 
