@@ -14,7 +14,7 @@ Datasets enable:
 
 ## Uploading a Dataset to AzureML studio
 
-1. Download the churn dataset by clicking on this link: and saving the file to disk.
+1. Download the churn dataset by clicking on this link: https://raw.githubusercontent.com/ignaciofls/MLOps_telco/master/data/WA_Fn-UseC_-Telco-Customer-Churn.csv and saving the file to disk.
 
 1. Navigate to the left pane of your workspace. Select Datasets under the Assets section. 
 ![](datasets.png)
