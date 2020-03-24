@@ -14,6 +14,7 @@ Main addons on top of danielsc's repo:
 - Fix of Azure Devops build pipeline to use AzureML pipeline (and avoid calling the python script straightaway)
 - Split of train, unitary test and register. Register only after sucessful tests, triggered with CLI as seen [here](https://docs.microsoft.com/en-us/cli/azure/ext/azure-cli-ml/ml/model?view=azure-cli-latest#ext-azure-cli-ml-az-ml-model-register)
 - Enhance visibility with Azure Monitoring and Datadrift
+![](2-mlops/media/UIDrift.png)
 
 
 E2E this is the MLops architecture we implement:
