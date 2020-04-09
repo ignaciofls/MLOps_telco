@@ -20,4 +20,5 @@ dependencies:
   - azureml-telemetry
   - azureml-explain-model
   - ipywidgets
+  - gevent
 - scikit-learn
