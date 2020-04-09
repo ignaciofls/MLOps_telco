@@ -33,7 +33,7 @@ def main():
     total_charges_filter = df.TotalCharges == " "
     df = df[~total_charges_filter]
     df.TotalCharges = pd.to_numeric(df.TotalCharges)
-    df = df.drop(['Churn_numerical','Churn','customerID'], axis=1)
+    df = df.drop(['Churn_numerical','Churn'], axis=1)
     train_model(df, target)
     run = Run.get_context()
     model = run.register_model(model_name='Churn_model', model_path='outputs/classifier.pkl')
