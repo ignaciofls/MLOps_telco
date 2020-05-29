@@ -3,57 +3,85 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- master
 
 variables: { 
-  mlWorkspaceConnection: 'myscforcommondemows' ,
-  mlWorkspaceName: 'commondemows',
-  resourceGroupName: 'commondemows'
+  mlWorkspaceConnection: 'sc_ws_useast2' ,
+  mlWorkspaceName: 'mlwsuseast2',
+  resourceGroupName: 'MLWSuseast2',
+  experimentName: 'churnMLOps'
   }
+
+trigger: 
+  - master
 
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
+stages: 
+- stage: Prepare_agent
+  jobs:
+  - job:
+    steps:
+    - task: Bash@3
+      displayName: 'Download 2.2.0 CLI'
+      inputs:
+        targetType: 'inline'
+        script: 'sudo curl https://packages.microsoft.com/repos/azure-cli/pool/main/a/azure-cli/azure-cli_2.2.0-1~xenial_all.deb --output cli.deb'
+    - task: AzureCLI@1
+      displayName: 'Uninstall CLI'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'sudo apt-get remove -y azure-cli'
+    - task: Bash@3
+      displayName: 'Install 2.2.0 CLI'
+      inputs:
+        targetType: 'inline'
+        script: 'sudo apt install ./cli.deb'
 
-- task: AzureCLI@1
-  displayName: 'Install the CLI'
-  inputs:
-    azureSubscription: $(mlWorkspaceConnection)
-    scriptLocation: inlineScript
-    inlineScript: 'az extension add -n azure-cli-ml'
+    - task: AzureCLI@1
+      displayName: 'Install the ML CLI extension'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'az extension add --source https://azurecliext.blob.core.windows.net/release/azure_cli_ml-1.2.0-py2.py3-none-any.whl --yes -y'
 
-- task: AzureCLI@1
-  displayName: 'Attach folder to ML workspace'
-  inputs:
-    azureSubscription: $(mlWorkspaceConnection)
-    scriptLocation: inlineScript
-    inlineScript: 'az ml folder attach -w $(mlWorkspaceName) -g $(resourceGroupName)'
-    workingDirectory: '2-mlops'
+    - task: AzureCLI@1
+      displayName: 'Attach folder to ML workspace'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'az ml folder attach -w $(mlWorkspaceName) -g $(resourceGroupName)'
+        workingDirectory: '2-mlops'
 
-- task: AzureCLI@1
-  displayName: 'Prepare data with ML pipeline'
-  inputs:
-    azureSubscription: $(mlWorkspaceConnection)
-    scriptLocation: inlineScript
-    inlineScript: 'az ml run submit-pipeline --pipeline-yaml adb-pipeline.yml --experiment-name churnMLOps'
-    workingDirectory: '2-mlops'
+    - task: AzureCLI@1
+      displayName: 'Submit Databricks step pipeline in ML pipeline'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'az ml run submit-pipeline --pipeline-yaml adb-pipeline.yml --experiment-name $(experimentName)'
+        workingDirectory: '2-mlops'
 
-- task: AzureCLI@1
-  displayName: 'Train with ML pipeline'
-  inputs:
-    azureSubscription: $(mlWorkspaceConnection)
-    scriptLocation: inlineScript
-    inlineScript: 'az ml run submit-pipeline --pipeline-yaml aml-pipeline.yml --experiment-name churnMLOps'
-    workingDirectory: '2-mlops'
+    - task: AzureCLI@1
+      displayName: 'Train with ML pipeline'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'az ml run submit-pipeline --debug --pipeline-yaml aml-pipeline.yml --experiment-name $(experimentName)'
+        workingDirectory: '2-mlops'
 
-- task: AzureCLI@1
-  displayName: 'Deploy to QA (ACI)'
-  inputs:
-    azureSubscription: $(mlWorkspaceConnection)
-    scriptLocation: inlineScript
-    inlineScript: 'az ml model deploy -n myacideployed -m Churn_model:1 --ic ./inference_config/inferenceConfig.json --dc ./inference_config/deploymentConfig.json --overwrite'
-    workingDirectory: '2-mlops'
+    - task: AzureCLI@1
+      displayName: 'Deploy to QA (ACI)'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'az ml model deploy -n myacideployed2 -m Churn_model:2 --ic ./inference_config/inferenceConfig.json --dc ./inference_config/deploymentConfig.json --overwrite'
+        workingDirectory: '2-mlops'
 
-
+    - task: AzureCLI@1
+      displayName: 'Test ACI endpoint'
+      inputs:
+        azureSubscription: $(mlWorkspaceConnection)
+        scriptLocation: inlineScript
+        inlineScript: 'pip install requests && python ./endpoint_test/test.py'
+        workingDirectory: '2-mlops'
